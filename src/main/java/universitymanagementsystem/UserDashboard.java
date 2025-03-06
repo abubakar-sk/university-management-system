@@ -10,6 +10,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class UserDashboard extends Application {
+    private boolean isAdmin;
+
+    public UserDashboard(boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
 
     @Override
     public void start(Stage stage) {
@@ -20,6 +25,12 @@ public class UserDashboard extends Application {
         Label title = new Label("User Menu");
         Button viewSubjectsBtn = new Button("View Subjects");
         Button logoutBtn = new Button("Logout");
+
+        // View Subjects button action
+        viewSubjectsBtn.setOnAction(_ -> {
+            new SubjectManagement(isAdmin).start(new Stage());
+            stage.close();
+        });
 
         // Logout button action
         logoutBtn.setOnAction(_ -> {
@@ -38,6 +49,7 @@ public class UserDashboard extends Application {
         stage.setScene(scene);
         stage.show();
     }
+
     public static void main(String[] args) {
         launch();
     }

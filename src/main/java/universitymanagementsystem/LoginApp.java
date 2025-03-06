@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 public class LoginApp extends Application {
     private final HashMap<String, String> users = new HashMap<>();
+    private boolean isAdmin;
 
     @Override
     public void start(Stage stage) {
@@ -30,7 +31,8 @@ public class LoginApp extends Application {
             String password = passwordField.getText();
 
             if (users.containsKey(username) && users.get(username).equals(password)) {
-                new UserDashboard().start(new Stage()); // Open UserDashboard
+                isAdmin = "Admin".equals(username);
+                new UserDashboard(isAdmin).start(new Stage()); // Open UserDashboard with role
                 stage.close(); // Close Login Window
             } else {
                 message.setText("Invalid Credentials!"); // Show error
@@ -51,4 +53,3 @@ public class LoginApp extends Application {
         launch(args);
     }
 }
-
