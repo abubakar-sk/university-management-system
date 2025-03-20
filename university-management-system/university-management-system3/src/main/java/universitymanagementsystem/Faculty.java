@@ -42,9 +42,6 @@ public class Faculty {
     public void SetInterest(String newInterest){
         researchIntrest = newInterest;
     }
-    public String getInterest(){
-        return researchIntrest;
-    }
     public void SetCourse(String newCourse){
         coursesOffered = newCourse;
     }

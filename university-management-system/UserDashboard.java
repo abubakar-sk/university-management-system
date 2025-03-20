@@ -46,7 +46,7 @@ public class UserDashboard extends Application {
             stage.close(); // Close user dashboard
         });
 
-        menu.getChildren().addAll(title, viewSubjectsBtn, viewFacultyManagementBtn, logoutBtn);
+        menu.getChildren().addAll(title, viewSubjectsBtn, logoutBtn);
 
         // Main layout
         BorderPane layout = new BorderPane();

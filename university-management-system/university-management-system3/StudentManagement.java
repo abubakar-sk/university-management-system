@@ -13,11 +13,9 @@ import java.util.Map;
 public class StudentManagement extends Application {
     private Map<String, Student> students = new HashMap<>();
     private boolean isAdmin;
-    private boolean isFaculty;
 
-    public StudentManagement(boolean isAdmin, boolean isFaculty) {
+    public StudentManagement(boolean isAdmin) {
         this.isAdmin = isAdmin;
-        this.isFaculty = isFaculty;
     }
 
     public static void main(String[] args) {
@@ -105,7 +103,7 @@ public class StudentManagement extends Application {
 
         // Back button action: Navigate back to UserDashboard
         backButton.setOnAction(e -> {
-            new UserDashboard(isAdmin, isFaculty).start(new Stage());
+            new UserDashboard(isAdmin).start(new Stage());
             primaryStage.close(); // Close the Student Management window
         });
 

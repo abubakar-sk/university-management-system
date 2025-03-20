@@ -10,14 +10,12 @@ import java.util.HashMap;
 public class LoginApp extends Application {
     private final HashMap<String, String> users = new HashMap<>();
     private boolean isAdmin;
-    private boolean isFaculty;
 
     @Override
     public void start(Stage stage) {
         // Predefined users (Username -> Password)
         users.put("Admin", "Admin1");
         users.put("user1", "password");
-        users.put("F0001", "default123");
 
         // UI Components
         Label label = new Label("Enter Username:");
@@ -34,8 +32,7 @@ public class LoginApp extends Application {
 
             if (users.containsKey(username) && users.get(username).equals(password)) {
                 isAdmin = "Admin".equals(username);
-                isFaculty = "default123".equals(password);
-                new UserDashboard(isAdmin, isFaculty).start(new Stage()); // Open UserDashboard with role
+                new UserDashboard(isAdmin).start(new Stage()); // Open UserDashboard with role
                 stage.close(); // Close Login Window
             } else {
                 message.setText("Invalid Credentials!"); // Show error

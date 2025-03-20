@@ -11,13 +11,10 @@ import javafx.stage.Stage;
 
 public class UserDashboard extends Application {
     private boolean isAdmin;
-    private boolean isFaculty;
 
-    public UserDashboard(boolean isAdmin, boolean isFaculty) {
+    public UserDashboard(boolean isAdmin) {
         this.isAdmin = isAdmin;
-        this.isFaculty = isFaculty;
     }
-
     @Override
     public void start(Stage stage) {
         // Left-side navigation menu
@@ -29,14 +26,15 @@ public class UserDashboard extends Application {
         Button viewFacultyManagementBtn = new Button("View Faculty Management");
         Button logoutBtn = new Button("Logout");
 
-
+        // View Subjects button action
         viewFacultyManagementBtn.setOnAction(_ -> {
-            new FacultyManagement(isAdmin, isFaculty).start(new Stage());
+            new FacultyManagement(isAdmin).start(new Stage());
             stage.close();
         });
-        // View Subjects button action
+
+        // View Faculty button action
         viewSubjectsBtn.setOnAction(_ -> {
-            new SubjectManagement(isAdmin, isFaculty).start(new Stage());
+            new SubjectManagement(isAdmin).start(new Stage());
             stage.close();
         });
 

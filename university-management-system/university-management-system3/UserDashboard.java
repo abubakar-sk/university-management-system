@@ -11,11 +11,9 @@ import javafx.stage.Stage;
 
 public class UserDashboard extends Application {
     private boolean isAdmin;
-    private boolean isFaculty;
 
-    public UserDashboard(boolean isAdmin, boolean isFaculty) {
+    public UserDashboard(boolean isAdmin) {
         this.isAdmin = isAdmin;
-        this.isFaculty = isFaculty;
     }
 
     @Override
@@ -26,17 +24,21 @@ public class UserDashboard extends Application {
 
         Label title = new Label("User Menu");
         Button viewSubjectsBtn = new Button("View Subjects");
-        Button viewFacultyManagementBtn = new Button("View Faculty Management");
         Button logoutBtn = new Button("Logout");
+        Button manageStudentsBtn = new Button("Manage Students");
 
+        // Show Student Management only if the user is an admin
+        manageStudentsBtn.setVisible(isAdmin);
 
-        viewFacultyManagementBtn.setOnAction(_ -> {
-            new FacultyManagement(isAdmin, isFaculty).start(new Stage());
-            stage.close();
-        });
         // View Subjects button action
         viewSubjectsBtn.setOnAction(_ -> {
-            new SubjectManagement(isAdmin, isFaculty).start(new Stage());
+            new SubjectManagement(isAdmin).start(new Stage());
+            stage.close();
+        });
+
+        // Manage Students button action
+        manageStudentsBtn.setOnAction(_ -> {
+            new StudentManagement(isAdmin).start(new Stage());
             stage.close();
         });
 
@@ -46,7 +48,7 @@ public class UserDashboard extends Application {
             stage.close(); // Close user dashboard
         });
 
-        menu.getChildren().addAll(title, viewSubjectsBtn, viewFacultyManagementBtn, logoutBtn);
+        menu.getChildren().addAll(title, viewSubjectsBtn, manageStudentsBtn, logoutBtn);
 
         // Main layout
         BorderPane layout = new BorderPane();

@@ -13,11 +13,9 @@ import java.util.Map;
 public class SubjectManagement extends Application {
     private Map<String, String> subjects = new HashMap<>();
     private boolean isAdmin;
-    private boolean isFaculty;
 
-    public SubjectManagement(boolean isAdmin, boolean isFaculty) {
+    public SubjectManagement(boolean isAdmin) {
         this.isAdmin = isAdmin;
-        this.isFaculty = isFaculty;
     }
 
     public static void main(String[] args) {
@@ -55,6 +53,7 @@ public class SubjectManagement extends Application {
         Button addButton = new Button("Add");
         Button editButton = new Button("Edit");
         Button deleteButton = new Button("Delete");
+        Button backButton = new Button("Back"); // Back button
 
         addButton.setOnAction(e -> {
             String code = subjectCodeField.getText();
@@ -90,14 +89,20 @@ public class SubjectManagement extends Application {
             }
         });
 
+        // Back button action: Navigate back to UserDashboard
+        backButton.setOnAction(e -> {
+            new UserDashboard(isAdmin).start(new Stage());
+            primaryStage.close(); // Close the Subject Management window
+        });
+
         // Layout Setup
         HBox inputFields = new HBox(10, subjectCodeField, subjectNameField);
-        HBox buttons = new HBox(10, addButton, editButton, deleteButton);
+        HBox buttons = new HBox(10, addButton, editButton, deleteButton, backButton);
 
         if (isAdmin) {
             layout.getChildren().addAll(subjectList, searchField, inputFields, buttons);
         } else {
-            layout.getChildren().addAll(subjectList, searchField);
+            layout.getChildren().addAll(subjectList, searchField, backButton);
         }
 
         primaryStage.setScene(new Scene(layout, 350, 400));
