@@ -13,9 +13,11 @@ import java.util.Map;
 public class SubjectManagement extends Application {
     private Map<String, String> subjects = new HashMap<>();
     private boolean isAdmin;
+    private boolean isFaculty;
 
-    public SubjectManagement(boolean isAdmin) {
+    public SubjectManagement(boolean isAdmin, boolean isFaculty) {
         this.isAdmin = isAdmin;
+        this.isFaculty = isFaculty;
     }
 
     public static void main(String[] args) {
