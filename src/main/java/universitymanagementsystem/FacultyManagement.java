@@ -39,6 +39,8 @@ public class FacultyManagement extends Application {
         // Subject List
         ListView<String> facultyListNam = new ListView<>();
         facultyListNam.setPrefSize(300, 200);
+        ListView<String> facultyListCourse = new ListView<>();
+        facultyListCourse.setPrefSize(200, 200);
 
         // ListView<Faculty> facultyList = new ListView<>();
         //facultyList.setPrefSize(300, 200);
@@ -47,6 +49,8 @@ public class FacultyManagement extends Application {
         //name
         TextField facultyNameField = new TextField();
         facultyNameField.setPromptText("Faculty Name");
+        TextField facultyCourseField = new TextField();
+        facultyCourseField.setPromptText("Add Course");
 
         //profile photo
 
@@ -64,6 +68,7 @@ public class FacultyManagement extends Application {
         Button deleteButton = new Button("Delete");
         Button interestButton = new Button("Interest");
         Button assignCourseButton = new Button("Assign Course");
+        Button viewProfileButton = new Button("View Profile");
 
 
         addButton.setOnAction(e -> {
@@ -105,7 +110,7 @@ public class FacultyManagement extends Application {
         });
 
         assignCourseButton.setOnAction(e -> {
-            String code = facultyNameField.getText();
+            String code = facultyCourseField.getText();
             String selected = facultyListNam.getSelectionModel().getSelectedItem();
             //          String name = facultyNameField.getText();
             if (selected != null) {
@@ -128,14 +133,27 @@ public class FacultyManagement extends Application {
 
             }
         });
+//        assignCourseButton.setOnAction(e -> {
+
+//            String code = facultyCourseField.getText();
+//            String selected = facultyListNam.getSelectionModel().getSelectedItem();
+//            String name = facultyNameField.getText();
+//            if (selected != null) {
+//                //System.out.println(facultyListNam.getItems().indexOf(selected));
+//                facultyList.get(facultyListCourse.getItems().indexOf(selected)).SetCourse(code);
+//
+//                updateFacultyList(facultyListCourse, " ");
+//
+//            }
+//        });
 
         // Layout Setup
-        HBox inputFields = new HBox(10, facultyNameField);//facultyDegreeField
-        HBox buttons = new HBox(10, addButton, editButton, deleteButton, assignCourseButton);
+        HBox inputFields = new HBox(10, facultyNameField, facultyCourseField);//facultyDegreeField
+        HBox buttons = new HBox(10, addButton, editButton, deleteButton, assignCourseButton, interestButton, viewProfileButton);
         HBox buttonsFac = new HBox(10, assignCourseButton);
 
         if (isAdmin) {
-            layout.getChildren().addAll(facultyListNam, inputFields, buttons);
+            layout.getChildren().addAll(facultyListNam, inputFields, buttons, assignCourseButton);
         }else if(isFaculty){
             layout.getChildren().addAll(interestButton);
         } else {
@@ -163,7 +181,16 @@ public class FacultyManagement extends Application {
         facultyLis.getItems().clear();
         for (int i = 0; i < facultyList.size(); i++){
             //  if (code.contains(filter) || name.contains(filter)) {
-            facultyLis.getItems().add(facultyList.get(i).GetName());// + " " + facultyList.get(i).getInterest());
+            if (isAdmin == true){
+                facultyLis.getItems().add(facultyList.get(i).GetName() + " " + facultyList.get(i).getCourse());
+            }
+            else if (isFaculty == true){
+                facultyLis.getItems().add(facultyList.get(i).GetName() + " " + facultyList.get(i).getInterest());
+            }
+            else{
+
+            }
+
             // facaltyListNam;
             //}
         }
