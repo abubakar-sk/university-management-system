@@ -48,4 +48,12 @@ public class Faculty {
     public void SetCourse(String newCourse){
         coursesOffered = newCourse;
     }
+    public String getCourse(){return coursesOffered;}
+    public void SetDegree(String newDeg){degree = newDeg;}
+    public String GetDegree(){return degree;}
+    public String GetEmail(){return email;}
+    public String GetPassword(){return password;}
+    public String GetOfficeLocation(){return officeLocation;}
+    public void SetOfficeLocation(String officeLoc){officeLocation = officeLoc;}
+
 }

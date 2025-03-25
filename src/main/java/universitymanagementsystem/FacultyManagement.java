@@ -163,7 +163,7 @@ public class FacultyManagement extends Application {
         facultyLis.getItems().clear();
         for (int i = 0; i < facultyList.size(); i++){
             //  if (code.contains(filter) || name.contains(filter)) {
-            facultyLis.getItems().add(facultyList.get(i).GetName() + " " + facultyList.get(i).getInterest());
+            facultyLis.getItems().add(facultyList.get(i).GetName());// + " " + facultyList.get(i).getInterest());
             // facaltyListNam;
             //}
         }
