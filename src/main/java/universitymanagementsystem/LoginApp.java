@@ -5,87 +5,73 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.geometry.Insets;
 import java.util.HashMap;
 
 public class LoginApp extends Application {
-    private final HashMap<String, String> userCredentials = new HashMap<>();
-    private final HashMap<String, String> userRoles = new HashMap<>();
-
+    private final HashMap<String, String> users = new HashMap<>();
+    private boolean isAdmin;
+    private boolean isFaculty;
+    private String curUser;
     @Override
     public void start(Stage stage) {
-        initializeCredentials();
+        // Predefined users (Username -> Password)
+        users.put("Admin", "Admin1");
+        users.put("user1", "password");
+        users.put("F0001", "default123");
 
-        Label usernameLabel = new Label("Username:");
+        // UI Components
+        Label label = new Label("Enter Username:");
         TextField usernameField = new TextField();
-        Label passwordLabel = new Label("Password:");
+        Label passLabel = new Label("Enter Password:");
         PasswordField passwordField = new PasswordField();
         Button loginButton = new Button("Login");
+        Label message = new Label();
 
-        loginButton.setOnAction(e -> {
-            String username = usernameField.getText().trim();
+        // Login button action: Validate credentials
+        loginButton.setOnAction(_ -> {
+            String username = usernameField.getText();
             String password = passwordField.getText();
+            if (isFaculty == true){
+                if (users.containsKey(username) && users.get(username).equals(password)) {
+                    isAdmin = "Admin".equals(username);
+                    isFaculty = "default123".equals(password);
+                    if (isFaculty == false && isAdmin != true){
 
-            if (authenticate(username, password)) {
-                String role = userRoles.get(username);
-                // Set user data before opening dashboard
-                UserDashboard.setUserData(username, role);
-                navigateToDashboard(stage);
-            } else {
-                showAlert("Login Failed", "Invalid username or password");
+                        isFaculty = username.contains("F00");
+                    }
+
+                    new UserDashboard(isAdmin, isFaculty, username).start(new Stage()); // Open UserDashboard with role
+                    stage.close(); // Close Login Window
+                } else {
+                    message.setText("Invalid Credentials!"); // Show error
+                }
+            }
+            else {
+
+
+                if (users.containsKey(username) && users.get(username).equals(password)) {
+                    isAdmin = "Admin".equals(username);
+                    isFaculty = "default123".equals(password);
+                    new UserDashboard(isAdmin, isFaculty, username).start(new Stage()); // Open UserDashboard with role
+                    stage.close(); // Close Login Window
+                } else {
+                    message.setText("Invalid Credentials!"); // Show error
+                }
             }
         });
 
-        VBox layout = new VBox(10, usernameLabel, usernameField,
-                passwordLabel, passwordField, loginButton);
-        layout.setPadding(new Insets(20));
+        // Layout setup
+        VBox layout = new VBox(10, label, usernameField, passLabel, passwordField, loginButton, message);
+        Scene scene = new Scene(layout, 300, 250);
 
-        stage.setScene(new Scene(layout, 300, 250));
-        stage.setTitle("University Login");
+        // Stage setup
+        stage.setTitle("Login");
+        stage.setScene(scene);
         stage.show();
     }
-
-    private void initializeCredentials() {
-        // Admin
-        userCredentials.put("admin", "admin123");
-        userRoles.put("admin", "ADMIN");
-
-        // Students
-        userCredentials.put("student1", "student123");
-        userRoles.put("student1", "STUDENT");
-
-        // Faculty
-        userCredentials.put("turing", "default123");
-        userRoles.put("turing", "FACULTY");
-        userCredentials.put("bronte", "default123");
-        userRoles.put("bronte", "FACULTY");
-        userCredentials.put("copeland", "default123");
-        userRoles.put("copeland", "FACULTY");
-        userCredentials.put("gharabaghi", "default123");
-        userRoles.put("gharabaghi", "FACULTY");
-    }
-
-    private boolean authenticate(String username, String password) {
-        return userCredentials.containsKey(username) &&
-                userCredentials.get(username).equals(password);
-    }
-
-    private void navigateToDashboard(Stage stage) {
-        try {
-            new UserDashboard().start(new Stage());
-            stage.close();
-        } catch (Exception e) {
-            showAlert("Error", "Failed to open dashboard");
-        }
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
+public String getUser(){
+        return curUser;
+}
     public static void main(String[] args) {
         launch(args);
     }

@@ -1,0 +1,5 @@
+ID: F0001, Title: Dr., Name: Alan Turing, Degree: Ph.D., Research Interest: Computational Theory, Email: turing@university.edu, Office Location: Room 201, Courses Offered: Calculus I, Password: default123
+ID: F0002, Title: Prof., Name: Emily Brontë, Degree: Master's, Research Interest: English Literature, Email: bronte@university.edu, Office Location: Room 202, Courses Offered: Literature Basics, Password: default123
+ID: F0003, Title: Dr., Name: Grace Hopper, Degree: Ph.D., Research Interest: Computer Programming, Email: hopper@university.edu, Office Location: Lab 203, Courses Offered: Intro to Programming, Password: default123
+ID: F0004, Title: Dr., Name: Lakyn Copeland, Degree: Master's, Research Interest: English Literature, Email: copeland@university.edu, Office Location: Room 201, Courses Offered: Introduction to French, Password: default123
+ID: F0005, Title:  , Name: Albozr Gharabaghi, Degree: Ph.D., Research Interest: Water and Soil, Email: gharabaghi@university.edu, Office Location: Lab 202, Courses Offered: Water Resources, Password: default123
