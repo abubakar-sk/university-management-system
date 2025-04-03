@@ -11,16 +11,11 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class UserDashboard extends Application {
-    private static LoginApp.UserType userType;
-    private static String currentUsername;
+    private static boolean isAdmin;
 
-    // Setter methods
-    public static void setUserType(LoginApp.UserType type) {
-        UserDashboard.userType = type;
-    }
-
-    public static void setCurrentUsername(String username) {
-        UserDashboard.currentUsername = username;
+    // Setter method for isAdmin
+    public static void setIsAdmin(boolean isAdmin) {
+        UserDashboard.isAdmin = isAdmin;
     }
 
     @Override
@@ -30,72 +25,40 @@ public class UserDashboard extends Application {
         VBox menu = setupMenu(stage);
         layout.setLeft(menu);
 
-        // Display the dashboard view with personalized welcome
-        String welcomeMessage = String.format("Welcome %s!\nYou are logged in as: %s",
-                currentUsername,
-                userType.toString().charAt(0) + userType.toString().substring(1).toLowerCase());
-
-        Label dashboardContent = new Label(welcomeMessage);
+        // Display the dashboard view
+        Label dashboardContent = new Label("Welcome to the User Dashboard!");
         dashboardContent.setPadding(new Insets(20));
-        dashboardContent.setStyle("-fx-font-size: 16px;");
         layout.setCenter(dashboardContent);
 
         // Setup the scene
-        Scene scene = new Scene(layout, 800, 600);
-        stage.setTitle("University Dashboard - " + currentUsername);
+        Scene scene = new Scene(layout, 600, 400);
+        stage.setTitle("User Dashboard");
         stage.setScene(scene);
         stage.show();
     }
 
     private VBox setupMenu(Stage stage) {
         VBox menu = new VBox(10);
-        menu.setPadding(new Insets(15));
-        menu.setStyle("-fx-background-color: #f0f0f0;");
-
-        String menuTitle = "";
-        switch (userType) {
-            case ADMIN:
-                menuTitle = "Admin Menu";
-                break;
-            case FACULTY:
-                menuTitle = "Faculty Menu";
-                break;
-            case STUDENT:
-                menuTitle = "Student Menu";
-                break;
-        }
-
-        Label title = new Label(menuTitle);
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        menu.setPadding(new Insets(10));
+        Label title = new Label(isAdmin ? "Admin Menu" : "User Menu");
         menu.getChildren().add(title);
 
-        // Common buttons for all users
-        addMenuButton("View Events", new EventManagement(userType == LoginApp.UserType.ADMIN, currentUsername), stage, menu);
-
-        // Role-specific buttons
-        switch (userType) {
-            case ADMIN:
-                addMenuButton("Manage Subjects", new SubjectManagement(true), stage, menu);
-                addMenuButton("Manage Courses", new CourseManagement(true), stage, menu);
-                addMenuButton("Manage Students", new StudentManagement(true), stage, menu);
-                addMenuButton("Manage Faculty", new FacultyManagement(true, false), stage, menu);
-                break;
-
-            case FACULTY:
-                addMenuButton("My Courses", new FacultyManagement(false, true), stage, menu);
-                addMenuButton("View Students", new StudentManagement(false), stage, menu);
-                break;
-
-            case STUDENT:
-                addMenuButton("View Subjects", new SubjectManagement(false), stage, menu);
-                addMenuButton("View Courses", new CourseManagement(false), stage, menu);
-                addMenuButton("My Profile", new StudentProfile(currentUsername), stage, menu);
-                break;
+        // Dynamically populate menu items based on role
+        if (isAdmin) {
+            addMenuButton("Manage Subjects", new SubjectManagement(isAdmin), stage, menu);
+            addMenuButton("Manage Courses", new CourseManagement(isAdmin), stage, menu);
+            addMenuButton("Manage Students", new StudentManagement(isAdmin), stage, menu);
+            addMenuButton("Manage Faculty", new FacultyManagement(isAdmin, false), stage, menu);
+            addMenuButton("Manage Events", new EventManagement(isAdmin), stage, menu);
+        } else {
+            addMenuButton("View Subjects", new SubjectManagement(isAdmin), stage, menu);
+            addMenuButton("View Courses", new CourseManagement(isAdmin), stage, menu);
+            addMenuButton("View Events", new EventManagement(isAdmin), stage, menu);
+            addMenuButton("View Dashboard", new StudentManagement(isAdmin), stage, menu);
         }
 
-        // Logout button (common to all roles)
+        // Logout button (common to both roles)
         Button logoutButton = new Button("Logout");
-        logoutButton.setStyle("-fx-base: #ff6b6b;");
         logoutButton.setOnAction(e -> logout(stage));
         menu.getChildren().add(logoutButton);
 
@@ -104,8 +67,6 @@ public class UserDashboard extends Application {
 
     private void addMenuButton(String label, Application module, Stage currentStage, VBox menu) {
         Button button = new Button(label);
-        button.setMaxWidth(Double.MAX_VALUE);
-        button.setStyle("-fx-alignment: center-left;");
         button.setOnAction(e -> openModule(module, currentStage));
         menu.getChildren().add(button);
     }
@@ -138,9 +99,8 @@ public class UserDashboard extends Application {
     }
 
     public static void main(String[] args) {
-        // For testing purposes only
-        setUserType(LoginApp.UserType.ADMIN);
-        setCurrentUsername("Admin");
+        // Example: Set user role (true for Admin, false for regular User)
+        setIsAdmin(true);
         launch(args);
     }
 }
