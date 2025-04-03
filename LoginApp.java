@@ -5,57 +5,85 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
 import java.util.HashMap;
 
 public class LoginApp extends Application {
-    private final HashMap<String, String> users = new HashMap<>();
-    private boolean isAdmin;
+    private final HashMap<String, User> users = new HashMap<>();
+
+    // User types
+    public enum UserType {
+        ADMIN, FACULTY, STUDENT
+    }
+
+    // User class to store credentials and type
+    private static class User {
+        String password;
+        UserType type;
+
+        public User(String password, UserType type) {
+            this.password = password;
+            this.type = type;
+        }
+    }
 
     @Override
     public void start(Stage stage) {
-        // Predefined users (Username -> Password)
-        users.put("Admin", "Admin1");
-        users.put("user1", "password");
+        // Predefined users (passwords should ideally be hashed in real applications)
+        users.put("Admin", new User("Admin1", UserType.ADMIN));
+        users.put("faculty1", new User("teach123", UserType.FACULTY));
+        users.put("user1", new User("password", UserType.STUDENT));
+
+        // Add faculty from your Excel data
+        users.put("turing", new User("default123", UserType.FACULTY));  // Dr. Alan Turing
+        users.put("bronte", new User("default123", UserType.FACULTY));  // Prof. Emily Brontë
+        users.put("hopper", new User("default123", UserType.FACULTY));  // Dr. Grace Hopper
+        users.put("copeland", new User("default123", UserType.FACULTY)); // Dr. Lakyn Copeland
+        users.put("gharabaghi", new User("default123", UserType.FACULTY)); // Albozr Gharabaghi
 
         // UI Components
-        Label label = new Label("Enter Username:");
+        Label usernameLabel = new Label("Enter Username:");
         TextField usernameField = new TextField();
-        Label passLabel = new Label("Enter Password:");
+        Label passwordLabel = new Label("Enter Password:");
         PasswordField passwordField = new PasswordField();
         Button loginButton = new Button("Login");
-        Button manageStudentsBtn = new Button("Manage Students");
-        Label message = new Label();
 
-        // Show Student Management only if the user is an admin
-        manageStudentsBtn.setVisible(false);
+        // Error message alert box
+        loginButton.setOnAction(e -> handleLogin(stage, usernameField.getText(), passwordField.getText()));
 
-        // Login button action: Validate credentials
-        loginButton.setOnAction(_ -> {
-            String username = usernameField.getText();
-            String password = passwordField.getText();
-
-            if (users.containsKey(username) && users.get(username).equals(password)) {
-                isAdmin = "Admin".equals(username);
-                manageStudentsBtn.setVisible(isAdmin);
-
-                if (isAdmin) {
-                    new UserDashboard(isAdmin).start(new Stage()); // Open UserDashboard with role
-                } else {
-                    new UserDashboard(isAdmin).start(new Stage()); // Open dashboard for other users
-                }
-
-                stage.close(); // Close Login Window
-            } else {
-                message.setText("Invalid Credentials!"); // Show error
-            }
-        });
-
-        VBox layout = new VBox(10, label, usernameField, passLabel, passwordField, loginButton, manageStudentsBtn, message);
+        VBox layout = new VBox(10, usernameLabel, usernameField, passwordLabel, passwordField, loginButton);
         Scene scene = new Scene(layout, 300, 250);
 
-        stage.setTitle("Login");
+        stage.setTitle("University Login");
         stage.setScene(scene);
         stage.show();
+    }
+
+    private void handleLogin(Stage stage, String username, String password) {
+        if (users.containsKey(username) && users.get(username).password.equals(password)) {
+            UserType userType = users.get(username).type;
+            UserDashboard.setUserType(userType); // Pass user type to dashboard
+            UserDashboard.setCurrentUsername(username); // Pass username to dashboard
+            navigateToDashboard(stage);
+        } else {
+            showAlert("Invalid Credentials", "The username or password you entered is incorrect.");
+        }
+    }
+
+    private void navigateToDashboard(Stage stage) {
+        try {
+            new UserDashboard().start(new Stage());
+            stage.close(); // Close login window
+        } catch (Exception ex) {
+            showAlert("Error", "Failed to open the dashboard. Please try again.");
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     public static void main(String[] args) {

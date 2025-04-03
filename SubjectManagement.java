@@ -1,132 +1,169 @@
 package universitymanagementsystem;
 
 import javafx.application.Application;
-import javafx.geometry.Insets;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class SubjectManagement extends Application {
-    private Map<String, String> subjects = new HashMap<>();
     private boolean isAdmin;
+    private ObservableList<Subject> subjects = FXCollections.observableArrayList();
 
     public SubjectManagement(boolean isAdmin) {
         this.isAdmin = isAdmin;
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    public SubjectManagement() {
+        this.isAdmin = false;
     }
 
     @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("Subject Management");
+    public void start(Stage stage) {
+        if (isAdmin) {
+            showAdminPanel(stage);
+        } else {
+            showUserPanel(stage);
+        }
+    }
 
-        // Layout
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(20, 20, 20, 20));
+    // Admin Panel
+    private void showAdminPanel(Stage stage) {
+        Label titleLabel = new Label("Subject Management (Admin)");
+        TextField codeField = new TextField();
+        codeField.setPromptText("Subject Code");
+        TextField nameField = new TextField();
+        nameField.setPromptText("Subject Name");
 
-        // Subject List
-        ListView<String> subjectList = new ListView<>();
-        subjectList.setPrefSize(300, 200);
+        Button addSubjectButton = new Button("Add Subject");
+        Button deleteSubjectButton = new Button("Delete Subject");
+        ListView<String> subjectListView = new ListView<>();
+        updateSubjectListView(subjectListView);
 
-        // Input Fields
-        TextField subjectCodeField = new TextField();
-        subjectCodeField.setPromptText("Subject Code");
+        addSubjectButton.setOnAction(e -> {
+            String code = codeField.getText();
+            String name = nameField.getText();
 
-        TextField subjectNameField = new TextField();
-        subjectNameField.setPromptText("Subject Name");
+            if (validateInput(code, name)) {
+                if (!isSubjectCodeDuplicate(code)) {
+                    subjects.add(new Subject(code, name));
+                    codeField.clear();
+                    nameField.clear();
+                    updateSubjectListView(subjectListView);
+                    System.out.println("Added Subject: " + code + " - " + name);
+                } else {
+                    showAlert("Duplicate Code", "Subject code must be unique.");
+                }
+            }
+        });
 
-        // Search Field
+        deleteSubjectButton.setOnAction(e -> {
+            String selectedSubject = subjectListView.getSelectionModel().getSelectedItem();
+            if (selectedSubject != null) {
+                subjects.removeIf(subject -> subject.getCode().equals(parseSubjectCode(selectedSubject)));
+                updateSubjectListView(subjectListView);
+                System.out.println("Deleted Subject: " + selectedSubject);
+            } else {
+                showAlert("No Selection", "Please select a subject to delete.");
+            }
+        });
+
+        VBox layout = new VBox(10, titleLabel, codeField, nameField, addSubjectButton, deleteSubjectButton, subjectListView);
+        addReturnToDashboardButton(layout, stage);
+
+        Scene scene = new Scene(layout, 400, 400);
+        stage.setScene(scene);
+        stage.setTitle("Subject Management");
+        stage.show();
+    }
+
+    // User Panel
+    private void showUserPanel(Stage stage) {
+        Label titleLabel = new Label("Available Subjects");
         TextField searchField = new TextField();
-        searchField.setPromptText("Search Subject");
+        searchField.setPromptText("Search Subjects");
+        ListView<String> subjectListView = new ListView<>();
+        updateSubjectListView(subjectListView);
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateSubjectList(subjectList, newValue);
+            subjectListView.getItems().clear();
+            subjects.stream()
+                    .filter(subject -> subject.getName().toLowerCase().contains(newValue.toLowerCase()))
+                    .forEach(subject -> subjectListView.getItems().add(subject.getCode() + " - " + subject.getName()));
         });
 
-        // Buttons
-        Button addButton = new Button("Add");
-        Button editButton = new Button("Edit");
-        Button deleteButton = new Button("Delete");
-        Button backButton = new Button("Back"); // Back button
+        VBox layout = new VBox(10, titleLabel, searchField, subjectListView);
+        addReturnToDashboardButton(layout, stage);
 
-        addButton.setOnAction(e -> {
-            String code = subjectCodeField.getText();
-            String name = subjectNameField.getText();
-            if (!code.isEmpty() && !name.isEmpty()) {
-                if (!subjects.containsKey(code)) {
-                    subjects.put(code, name);
-                    updateSubjectList(subjectList);
-                } else {
-                    showAlert("Error", "Subject code must be unique.");
-                }
-            }
-        });
+        Scene scene = new Scene(layout, 400, 400);
+        stage.setScene(scene);
+        stage.setTitle("Subject Management");
+        stage.show();
+    }
 
-        editButton.setOnAction(e -> {
-            String selected = subjectList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                String code = selected.split(":")[0];
-                String name = subjectNameField.getText();
-                if (!name.isEmpty()) {
-                    subjects.put(code, name);
-                    updateSubjectList(subjectList);
-                }
-            }
-        });
+    private void updateSubjectListView(ListView<String> subjectListView) {
+        subjectListView.getItems().clear();
+        subjects.forEach(subject -> subjectListView.getItems().add(subject.getCode() + " - " + subject.getName()));
+    }
 
-        deleteButton.setOnAction(e -> {
-            String selected = subjectList.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                String code = selected.split(":")[0];
-                subjects.remove(code);
-                updateSubjectList(subjectList);
-            }
-        });
-
-        // Back button action: Navigate back to UserDashboard
-        backButton.setOnAction(e -> {
-            new UserDashboard(isAdmin).start(new Stage());
-            primaryStage.close(); // Close the Subject Management window
-        });
-
-        // Layout Setup
-        HBox inputFields = new HBox(10, subjectCodeField, subjectNameField);
-        HBox buttons = new HBox(10, addButton, editButton, deleteButton, backButton);
-
-        if (isAdmin) {
-            layout.getChildren().addAll(subjectList, searchField, inputFields, buttons);
-        } else {
-            layout.getChildren().addAll(subjectList, searchField, backButton);
+    private boolean validateInput(String code, String name) {
+        if (code == null || code.isEmpty() || name == null || name.isEmpty()) {
+            showAlert("Invalid Input", "Subject code and name cannot be empty.");
+            return false;
         }
-
-        primaryStage.setScene(new Scene(layout, 350, 400));
-        primaryStage.show();
+        return true;
     }
 
-    private void updateSubjectList(ListView<String> subjectList) {
-        updateSubjectList(subjectList, "");
+    private boolean isSubjectCodeDuplicate(String code) {
+        return subjects.stream().anyMatch(subject -> subject.getCode().equals(code));
     }
 
-    private void updateSubjectList(ListView<String> subjectList, String filter) {
-        subjectList.getItems().clear();
-        subjects.forEach((code, name) -> {
-            if (code.contains(filter) || name.contains(filter)) {
-                subjectList.getItems().add(code + ": " + name);
-            }
-        });
+    private String parseSubjectCode(String subjectDisplay) {
+        return subjectDisplay.split(" - ")[0];
     }
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
-        alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void addReturnToDashboardButton(VBox layout, Stage stage) {
+        Button returnToDashboardBtn = new Button("Return to Dashboard");
+        returnToDashboardBtn.setOnAction(e -> {
+            try {
+                new UserDashboard().start(new Stage());
+                stage.close();
+            } catch (Exception ex) {
+                System.err.println("Error returning to dashboard: " + ex.getMessage());
+            }
+        });
+        layout.getChildren().add(returnToDashboardBtn);
+    }
+
+    // Subject Class
+    public static class Subject {
+        private String code;
+        private String name;
+
+        public Subject(String code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
     }
 }
