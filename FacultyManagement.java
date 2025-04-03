@@ -1,206 +1,190 @@
 package universitymanagementsystem;
 
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-
 public class FacultyManagement extends Application {
-    //private Map<String, Faculty> faculties = new HashMap<>();
-    private List<Faculty> facultyList = new ArrayList<Faculty>();
-    //public ArrayList<String> facultyListNam = new ArrayList<>();
+    private ObservableList<Faculty> facultyList = FXCollections.observableArrayList();
     private boolean isAdmin;
     private boolean isFaculty;
 
+    // Constructor to accept role-based access
     public FacultyManagement(boolean isAdmin, boolean isFaculty) {
         this.isAdmin = isAdmin;
         this.isFaculty = isFaculty;
     }
 
-    public static void main(String[] args) {
-        launch(args);
+    public FacultyManagement() {
+        this.isAdmin = false;
+        this.isFaculty = false;
     }
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Faculty Management");
-
-        // Layout
         VBox layout = new VBox(10);
-        layout.setPadding(new Insets(20, 20, 20, 20));
+        layout.setPadding(new Insets(20));
 
-        // Subject List
-        ListView<String> facultyListNam = new ListView<>();
-        facultyListNam.setPrefSize(300, 200);
-        ListView<String> facultyListCourse = new ListView<>();
-        facultyListCourse.setPrefSize(200, 200);
+        if (isAdmin) {
+            setupAdminPanel(primaryStage, layout);
+        } else if (isFaculty) {
+            setupFacultyPanel(primaryStage, layout);
+        }
 
-        // ListView<Faculty> facultyList = new ListView<>();
-        //facultyList.setPrefSize(300, 200);
+        Scene scene = new Scene(layout, 400, 400);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
 
-        // Input Fields
-        //name
-        TextField facultyNameField = new TextField();
-        facultyNameField.setPromptText("Faculty Name");
-        TextField facultyCourseField = new TextField();
-        facultyCourseField.setPromptText("Add Course");
+    // Admin Panel
+    private void setupAdminPanel(Stage stage, VBox layout) {
+        Label titleLabel = new Label("Faculty Management (Admin)");
+        TextField nameField = new TextField();
+        nameField.setPromptText("Faculty Name");
+        TextField degreeField = new TextField();
+        degreeField.setPromptText("Faculty Degree");
+        TextField researchField = new TextField();
+        researchField.setPromptText("Research Interest");
 
-        //profile photo
-
-        //degree
-        //    TextField facultyDegreeField = new TextField();
-        //  facultyDegreeField.setPromptText("Faculty Degree");
-
-        //research interest
-
-        //degree
-
-        // Buttons
         Button addButton = new Button("Add");
         Button editButton = new Button("Edit");
         Button deleteButton = new Button("Delete");
-        Button interestButton = new Button("Interest");
-        Button assignCourseButton = new Button("Assign Course");
-        Button viewProfileButton = new Button("View Profile");
-
+        ListView<String> facultyListView = new ListView<>();
+        updateFacultyListView(facultyListView);
 
         addButton.setOnAction(e -> {
-            String code = facultyNameField.getText();
-            //          String name = facultyNameField.getText();
-            if (!code.isEmpty()) {
-                facultyList.add(new Faculty(code));
+            String name = nameField.getText();
+            String degree = degreeField.getText();
+            String research = researchField.getText();
 
-                updateFacultyList(facultyListNam, " ");
-
+            if (validateInput(name, degree)) {
+                facultyList.add(new Faculty(name, degree, research));
+                updateFacultyListView(facultyListView);
+                clearFields(nameField, degreeField, researchField);
+                System.out.println("Added Faculty: " + name);
+            } else {
+                showAlert("Invalid Input", "Name and Degree cannot be empty.");
             }
         });
 
         deleteButton.setOnAction(e -> {
-            //       String code = facultyNameField.getText();
-            String selected = facultyListNam.getSelectionModel().getSelectedItem();
-            //          String name = facultyNameField.getText();
-            if (selected != null) {
-                //System.out.println(facultyListNam.getItems().indexOf(selected));
-                facultyList.remove(facultyListNam.getItems().indexOf(selected));
-
-                updateFacultyList(facultyListNam, " ");
-
+            String selectedFaculty = facultyListView.getSelectionModel().getSelectedItem();
+            if (selectedFaculty != null) {
+                facultyList.removeIf(faculty -> faculty.getName().equals(parseFacultyName(selectedFaculty)));
+                updateFacultyListView(facultyListView);
+                System.out.println("Deleted Faculty: " + selectedFaculty);
+            } else {
+                showAlert("No Selection", "Please select a faculty member to delete.");
             }
         });
-
 
         editButton.setOnAction(e -> {
-            String code = facultyNameField.getText();
-            String selected = facultyListNam.getSelectionModel().getSelectedItem();
-            //          String name = facultyNameField.getText();
-            if (selected != null) {
-                //System.out.println(facultyListNam.getItems().indexOf(selected));
-                facultyList.get(facultyListNam.getItems().indexOf(selected)).SetName(code);
-
-                updateFacultyList(facultyListNam, " ");
-
+            String selectedFaculty = facultyListView.getSelectionModel().getSelectedItem();
+            if (selectedFaculty != null) {
+                facultyList.removeIf(faculty -> faculty.getName().equals(parseFacultyName(selectedFaculty)));
+                updateFacultyListView(facultyListView);
+                System.out.println("Deleted Faculty: " + selectedFaculty);
+            } else {
+                showAlert("No Selection", "Please select a faculty member to delete.");
             }
         });
 
-        assignCourseButton.setOnAction(e -> {
-            String code = facultyCourseField.getText();
-            String selected = facultyListNam.getSelectionModel().getSelectedItem();
-            //          String name = facultyNameField.getText();
-            if (selected != null) {
-                //System.out.println(facultyListNam.getItems().indexOf(selected));
-                facultyList.get(facultyListNam.getItems().indexOf(selected)).SetCourse(code);
-
-                updateFacultyList(facultyListNam, " ");
-
-            }
-        });
-        interestButton.setOnAction(e -> {
-            String code = facultyNameField.getText();
-            String selected = facultyListNam.getSelectionModel().getSelectedItem();
-            //          String name = facultyNameField.getText();
-            if (selected != null) {
-                //System.out.println(facultyListNam.getItems().indexOf(selected));
-                facultyList.get(facultyListNam.getItems().indexOf(selected)).SetInterest(code);
-
-                updateFacultyList(facultyListNam, " ");
-
-            }
-        });
-//        assignCourseButton.setOnAction(e -> {
-
-//            String code = facultyCourseField.getText();
-//            String selected = facultyListNam.getSelectionModel().getSelectedItem();
-//            String name = facultyNameField.getText();
-//            if (selected != null) {
-//                //System.out.println(facultyListNam.getItems().indexOf(selected));
-//                facultyList.get(facultyListCourse.getItems().indexOf(selected)).SetCourse(code);
-//
-//                updateFacultyList(facultyListCourse, " ");
-//
-//            }
-//        });
-
-        // Layout Setup
-        HBox inputFields = new HBox(10, facultyNameField, facultyCourseField);//facultyDegreeField
-        HBox buttons = new HBox(10, addButton, editButton, deleteButton, assignCourseButton, interestButton, viewProfileButton);
-        HBox buttonsFac = new HBox(10, assignCourseButton);
-
-        if (isAdmin) {
-            layout.getChildren().addAll(facultyListNam, inputFields, buttons, assignCourseButton);
-        }else if(isFaculty){
-            layout.getChildren().addAll(interestButton);
-        } else {
-            layout.getChildren().addAll(facultyListNam);
-        }
-        //facultyList[0].getList();
-
-        primaryStage.setScene(new Scene(layout, 350, 400));
-        primaryStage.show();
+        HBox inputFields = new HBox(10, nameField, degreeField, researchField);
+        HBox buttons = new HBox(10, addButton, deleteButton, editButton);
+        layout.getChildren().addAll(titleLabel, inputFields, buttons, facultyListView);
+        addReturnToDashboardButton(layout, stage);
     }
 
+    // Faculty Panel
+    private void setupFacultyPanel(Stage stage, VBox layout) {
+        Label titleLabel = new Label("Faculty Profile");
+        // Logic to display faculty profile info and edit options (e.g., research interest, courses)
 
-    // private void updateSubjectList(ListView<String> subjectList, String filter) {
-    //   subjectList.getItems().clear();
-    // subjects.forEach((code, name) -> {
-    //   if (code.contains(filter) || name.contains(filter)) {
-    //     subjectList.getItems().add(code + ": " + name);
-    //           }
-    //     });
-    //}
-
-
-    private void updateFacultyList(ListView<String> facultyLis, String filter) {
-        //   facultyListNam.clear();
-        facultyLis.getItems().clear();
-        for (int i = 0; i < facultyList.size(); i++){
-            //  if (code.contains(filter) || name.contains(filter)) {
-            if (isAdmin == true){
-                facultyLis.getItems().add(facultyList.get(i).GetName() + " " + facultyList.get(i).getCourse());
+        Button returnToDashboardBtn = new Button("Return to Dashboard");
+        returnToDashboardBtn.setOnAction(e -> {
+            try {
+                new UserDashboard().start(new Stage());
+                stage.close();
+            } catch (Exception ex) {
+                System.err.println("Error returning to dashboard: " + ex.getMessage());
             }
-            else if (isFaculty == true){
-                facultyLis.getItems().add(facultyList.get(i).GetName() + " " + facultyList.get(i).getInterest());
-            }
-            else{
+        });
 
-            }
+        layout.getChildren().addAll(titleLabel, returnToDashboardBtn);
+    }
 
-            // facaltyListNam;
-            //}
+    private void updateFacultyListView(ListView<String> facultyListView) {
+        facultyListView.getItems().clear();
+        facultyList.forEach(faculty -> facultyListView.getItems().add(faculty.getName() + " - " + faculty.getDegree()));
+    }
+
+    private boolean validateInput(String name, String degree) {
+        return name != null && !name.isEmpty() && degree != null && !degree.isEmpty();
+    }
+
+    private String parseFacultyName(String display) {
+        return display.split(" - ")[0];
+    }
+
+    private void clearFields(TextField... fields) {
+        for (TextField field : fields) {
+            field.clear();
         }
     }
+
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle(title);
-        alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
-}
 
+    private void addReturnToDashboardButton(VBox layout, Stage stage) {
+        Button returnToDashboardBtn = new Button("Return to Dashboard");
+        returnToDashboardBtn.setOnAction(e -> {
+            try {
+                new UserDashboard().start(new Stage());
+                stage.close();
+            } catch (Exception ex) {
+                System.err.println("Error returning to dashboard: " + ex.getMessage());
+            }
+        });
+        layout.getChildren().add(returnToDashboardBtn);
+    }
+
+    // Faculty Class (Nested for simplicity in this example)
+    public static class Faculty {
+        private String name;
+        private String degree;
+        private String researchInterest;
+
+        public Faculty(String name, String degree, String researchInterest) {
+            this.name = name;
+            this.degree = degree;
+            this.researchInterest = researchInterest;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDegree() {
+            return degree;
+        }
+
+        public String getResearchInterest() {
+            return researchInterest;
+        }
+    }
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+}
